@@ -89,8 +89,8 @@ async function collectText(){
   
  
   if(msg =="/"){
-    const typing = document.getElementById("typing");
-  if (!typing) {
+    
+  
     for (let index = 0; index < textToDisplay.length; index++) {
       const commandList = textToDisplay[index];
     
@@ -99,11 +99,18 @@ async function collectText(){
     item.innerHTML = "Aviable Commands:" + " " + "/" + commandList.commands
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
-  }}
+  }
     console.log(textToDisplay)
 
   } else if (msg == "/dog"){
     
+  
+    const item = document.createElement("img");
+    item.id = "typing";
+    item.src = textToDisplay[0].image
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+  
     console.log(textToDisplay[0].image)
 
   } else if (msg == "/cat"){

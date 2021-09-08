@@ -6,6 +6,18 @@ const port = 3000;
 
 let clients = [];
 
+let commandsList = [
+  {
+    commands: "dog",
+    image: "public/assets/dog.png"
+
+  },{
+    
+    commands: "cat",
+    image: "public/assets/cat.png"
+  }
+]
+
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
@@ -33,5 +45,11 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("typing", msg);
   });
 });
+
+app.get("/api" , (req, res) => {
+  res.json(commandsList)
+
+
+})
 
 http.listen(port, () => console.log("server running on port: " + port));

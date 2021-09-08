@@ -1,3 +1,5 @@
+
+
 //socket connection to default host
 const socket = io();
 
@@ -15,12 +17,13 @@ window.onload = () => {
 
 //emits input when submit-button is triggered, unless input is empty
 //if input starts with "/" -->
-form.addEventListener("submit", function (e) {
+form.addEventListener("submit",function (e) {
   e.preventDefault();
   msg = input.value;
+  
   if (msg) {
     if (msg.startsWith("/")) {
-      console.log("commands");
+      collectText(msg)
     } else {
       socket.emit("chat message", { userName, msg });
       var item = document.createElement("li");
@@ -80,3 +83,53 @@ socket.on("user disconnected", function (msg) {
   messages.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
 });
+
+async function collectText(){
+  const textToDisplay = await makeRequest("http://localhost:3000/api", "GET")
+  
+ 
+  if(msg =="/"){
+    const typing = document.getElementById("typing");
+  if (!typing) {
+    for (let index = 0; index < textToDisplay.length; index++) {
+      const commandList = textToDisplay[index];
+    
+    const item = document.createElement("li");
+    item.id = "typing";
+    item.innerHTML = "Aviable Commands:" + " " + "/" + commandList.commands
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+  }}
+    console.log(textToDisplay)
+
+  } else if (msg == "/dog"){
+    
+    console.log(textToDisplay[0].image)
+
+  } else if (msg == "/cat"){
+    console.log(textToDisplay[1].image)
+  }
+
+
+}
+
+
+async function makeRequest(url, method, headers, body){
+  try {
+    const response = await fetch(url, {
+      headers,
+      method,
+      body: JSON.stringify(body),
+    })
+    
+    console.log(response)
+    const result = await response.json()
+    
+    
+    return result
+
+  }catch (err) {
+    console.error(err)
+  }
+
+}

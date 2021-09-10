@@ -1,5 +1,3 @@
-
-
 //socket connection to default host
 const socket = io();
 
@@ -17,15 +15,15 @@ window.onload = () => {
 
 //emits input when submit-button is triggered, unless input is empty
 //if input starts with "/" -->
-form.addEventListener("submit",function (e) {
+form.addEventListener("submit", function (e) {
   e.preventDefault();
   let msg = input.value;
-  
+
   socket.emit("chat message", { userName, msg });
-    
+
   if (msg) {
     if (msg.startsWith("/")) {
-      collectText()
+      collectText();
     } else {
       socket.emit("chat message", { userName, msg });
       var item = document.createElement("li");
@@ -42,17 +40,16 @@ form.addEventListener("submit",function (e) {
 socket.on("chat message", function (msg) {
   const typing = document.getElementById("typing");
   messages.removeChild(typing);
-  console.log(msg)
-  if(msg.banan){
-    console.log("i msg.url")
+
+  if (msg.banan) {
+    
     const item = document.createElement("li");
- const img = document.createElement("img")
- img.src = msg.banan
-  messages.appendChild(item);
-  item.appendChild(img)
-  window.scrollTo(0, document.body.scrollHeight);
+    const img = document.createElement("img");
+    img.src = msg.banan;
+    messages.appendChild(item);
+    item.appendChild(img);
+    window.scrollTo(0, document.body.scrollHeight);
   } else {
-    console.log(msg)
     const item = document.createElement("li");
     item.textContent = msg.userName + ": " + msg.msg;
     messages.appendChild(item);
@@ -65,14 +62,12 @@ input.addEventListener("input", function (e) {
   e.preventDefault();
   let msg = input.value;
   if (msg.startsWith("/")) {
-      collectText(msg)
+    collectText(msg);
   } else {
-    let gifDiv = document.getElementById("gifDiv")
-    if(gifDiv){
-      messages.removeChild(gifDiv)
-
+    let gifDiv = document.getElementById("gifDiv");
+    if (gifDiv) {
+      messages.removeChild(gifDiv);
     }
-    
   }
   msg = userName + " is typing...";
   socket.emit("typing", { msg });
@@ -108,101 +103,66 @@ socket.on("user disconnected", function (msg) {
   window.scrollTo(0, document.body.scrollHeight);
 });
 
-
-
-async function collectText(msg){
-  const textToDisplay = await makeRequest("http://api.giphy.com/v1/gifs/trending?api_key=hXZ9UKHaXXv9rxb3kMfISfbwuyu4ydTJ&limit=25&rating=g", "GET")
-  console.log(textToDisplay)
+async function collectText(msg) {
+  const textToDisplay = await makeRequest(
+    "http://api.giphy.com/v1/gifs/trending?api_key=hXZ9UKHaXXv9rxb3kMfISfbwuyu4ydTJ&limit=25&rating=g",
+    "GET"
+  );
+  
   const item = document.createElement("div");
   item.id = "gifDiv";
   messages.appendChild(item);
-  
 
-  if(msg == "/"){
+  if (msg == "/") {
+    const text = document.createElement("p");
+    text.innerHTML = "/trending";
 
-    const text = document.createElement("p")
-    text.innerHTML = "/trending"
-    
-    item.appendChild(text)
-    
-  } else if (msg == "/trending"){
-    textToDisplay.data.map(e=>{
-  
-      
-        const imgContainer = document.createElement("img")
-        imgContainer.style.height = "50px"
-        imgContainer.style.width = "50px"
-        let banan = e.images.downsized.url
-        imgContainer.src = banan
+    item.appendChild(text);
+  } else if (msg == "/trending") {
+    textToDisplay.data.map((e) => {
+      const imgContainer = document.createElement("img");
+      imgContainer.style.height = "50px";
+      imgContainer.style.width = "50px";
+      let banan = e.images.downsized.url;
+      imgContainer.src = banan;
+
+      imgContainer.addEventListener("click", () => {
+        socket.emit("chat message", { banan: banan });
+
         
-        imgContainer.addEventListener("click", ()=>{socket.emit("chat message", { banan: banan })
-      
-
-        console.log("i msg.url")
         const item = document.createElement("li");
-        const text = document.createElement("p")
-        const img = document.createElement("img")
-        img.src = banan
+        const text = document.createElement("p");
+        const img = document.createElement("img");
+        img.src = banan;
         messages.appendChild(item);
-        text.innerHTML = userName + ":"
+        text.innerHTML = userName + ":";
 
-        item.appendChild(text)
-        item.appendChild(img)
+        item.appendChild(text);
+        item.appendChild(img);
         window.scrollTo(0, document.body.scrollHeight);
-        console.log(banan)
-        console.log("hej")
-      
-      
-      })
         
-        item.appendChild(imgContainer)
-        
-        window.scrollTo(0, document.body.scrollHeight);
-      })
+      });
 
+      item.appendChild(imgContainer);
 
-
+      window.scrollTo(0, document.body.scrollHeight);
+    });
   }
+
  
-
-
-
-  /* for (let index = 0; index < textToDisplay.length; index++) {
-    const commandList = textToDisplay[index];
-    console.log(commandList)
-
-
-    const text = document.createElement("p")
-    text.innerText = "/gif"
-    const imgContainer = document.createElement("img")
-    imgContainer.style.height = "100px"
-    imgContainer.style.width = "100px"
-    imgContainer.src = textToDisplay.data[index].images.downsized.url
-    
-    item.appendChild(text)
-    item.appendChild(imgContainer)
-    window.scrollTo(0, document.body.scrollHeight);
-  
-  } */
 }
 
-
-async function makeRequest(url, method, body){
+async function makeRequest(url, method, body) {
   try {
     const response = await fetch(url, {
-      
       method,
       body: JSON.stringify(body),
-    })
-    
-    
-    const result = await response.json()
-    
-    
-    return result
+    });
 
-  }catch (err) {
-    console.error(err)
+    const result = await response.json();
+
+    return result;
+  } catch (err) {
+    console.error(err);
   }
-
 }

@@ -10,16 +10,16 @@ const input = document.getElementById("input");
 let userName;
 
 //forces user to choose name when app starts, and emits it to server
-/* window.onload = () => {
+window.onload = () => {
   userName = prompt("Enter your name?");
   socket.emit("user connected", userName);
-}; */
+};
 
 //emits input when submit-button is triggered, unless input is empty
 //if input starts with "/" -->
 form.addEventListener("submit",function (e) {
   e.preventDefault();
-  msg = input.value;
+  let msg = input.value;
   
   socket.emit("chat message", { userName, msg });
     
@@ -42,16 +42,17 @@ form.addEventListener("submit",function (e) {
 socket.on("chat message", function (msg) {
   const typing = document.getElementById("typing");
   messages.removeChild(typing);
-
-  if(msg.url){
+  console.log(msg)
+  if(msg.banan){
+    console.log("i msg.url")
     const item = document.createElement("li");
  const img = document.createElement("img")
- img.src = msg.url
+ img.src = msg.banan
   messages.appendChild(item);
-  iTextMetrics.appendChild(img)
+  item.appendChild(img)
   window.scrollTo(0, document.body.scrollHeight);
   } else {
-
+    console.log(msg)
     const item = document.createElement("li");
     item.textContent = msg.userName + ": " + msg.msg;
     messages.appendChild(item);
@@ -62,12 +63,16 @@ socket.on("chat message", function (msg) {
 //if user types, emit to server
 input.addEventListener("input", function (e) {
   e.preventDefault();
-  msg = input.value;
+  let msg = input.value;
   if (msg.startsWith("/")) {
       collectText(msg)
   } else {
-    gifDiv = document.getElementById("gifDiv")
-    messages.removeChild(gifDiv)
+    let gifDiv = document.getElementById("gifDiv")
+    if(gifDiv){
+      messages.removeChild(gifDiv)
+
+    }
+    
   }
   msg = userName + " is typing...";
   socket.emit("typing", { msg });
@@ -106,24 +111,20 @@ socket.on("user disconnected", function (msg) {
 
 
 async function collectText(msg){
-  const textToDisplay = await makeRequest("https://api.giphy.com/v1/gifs/trending?api_key=hXZ9UKHaXXv9rxb3kMfISfbwuyu4ydTJ&limit=25&rating=g", "GET")
-  
+  const textToDisplay = await makeRequest("http://api.giphy.com/v1/gifs/trending?api_key=hXZ9UKHaXXv9rxb3kMfISfbwuyu4ydTJ&limit=25&rating=g", "GET")
+  console.log(textToDisplay)
   const item = document.createElement("div");
   item.id = "gifDiv";
   messages.appendChild(item);
   
+
   if(msg == "/"){
 
     const text = document.createElement("p")
     text.innerHTML = "/trending"
     
-    
-    
     item.appendChild(text)
     
-    
-
-
   } else if (msg == "/trending"){
     textToDisplay.data.map(e=>{
   
@@ -131,18 +132,39 @@ async function collectText(msg){
         const imgContainer = document.createElement("img")
         imgContainer.style.height = "50px"
         imgContainer.style.width = "50px"
-        url = e.images.downsized.url
-        imgContainer.src = url
-        /* imgContainer.onclick(() => {
-          socket.emit("chat message", { url: e.images.downsized.url })
-        }) */
-        imgContainer.addEventListener("click", ()=>{socket.emit("chat message", { url: url })})
+        let banan = e.images.downsized.url
+        imgContainer.src = banan
+        
+        imgContainer.addEventListener("click", ()=>{socket.emit("chat message", { banan: banan })
+      
+
+        console.log("i msg.url")
+        const item = document.createElement("li");
+        const text = document.createElement("p")
+        const img = document.createElement("img")
+        img.src = banan
+        messages.appendChild(item);
+        text.innerHTML = userName + ":"
+
+        item.appendChild(text)
+        item.appendChild(img)
+        window.scrollTo(0, document.body.scrollHeight);
+        console.log(banan)
+        console.log("hej")
+      
+      
+      })
+        
         item.appendChild(imgContainer)
+        
         window.scrollTo(0, document.body.scrollHeight);
       })
 
+
+
   }
  
+
 
 
   /* for (let index = 0; index < textToDisplay.length; index++) {

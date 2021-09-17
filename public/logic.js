@@ -3,8 +3,11 @@ const socket = io();
 
 //global variables
 const messages = document.getElementById("messages");
+const inputArea = document.getElementById("inputArea");
+let gifDiv = null;
 const form = document.getElementById("form");
 const input = document.getElementById("input");
+
 let userName;
 
 //forces user to choose name when app starts, and emits it to server
@@ -19,33 +22,24 @@ form.addEventListener("submit", function (e) {
   e.preventDefault();
   let msg = input.value;
 
-  socket.emit("chat message", { userName, msg });
-
-  if (msg) {
-    if (msg.startsWith("/")) {
-      collectText();
-    } else {
-      socket.emit("chat message", { userName, msg });
-      var item = document.createElement("li");
-      item.textContent = userName + ": " + msg;
-      messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    }
+  if (!msg.startsWith("/")) {
+    socket.emit("chat message", { userName, msg });
   }
   input.value = "";
 });
 
 //adds <li> "[username]: [chat message]" in chat
 //removes <li> "[username] is typing..." if there is one
-socket.on("chat message", function (msg) {
+socket.on("chat message", (msg) => {
   const typing = document.getElementById("typing");
-  messages.removeChild(typing);
-
-  if (msg.banan) {
-    
+  console.log(typing);
+  if (typing !== null) {
+    messages.removeChild(typing);
+  }
+  if (msg.url) {
     const item = document.createElement("li");
     const img = document.createElement("img");
-    img.src = msg.banan;
+    img.src = msg.url;
     messages.appendChild(item);
     item.appendChild(img);
     window.scrollTo(0, document.body.scrollHeight);
@@ -63,10 +57,10 @@ input.addEventListener("input", function (e) {
   let msg = input.value;
   if (msg.startsWith("/")) {
     collectText(msg);
-  } else {
-    let gifDiv = document.getElementById("gifDiv");
-    if (gifDiv) {
-      messages.removeChild(gifDiv);
+  } else if (msg === "") {
+    if (gifDiv === null) {
+    } else {
+      inputArea.removeChild(gifDiv);
     }
   }
   msg = userName + " is typing...";
@@ -108,48 +102,42 @@ async function collectText(msg) {
     "http://api.giphy.com/v1/gifs/trending?api_key=hXZ9UKHaXXv9rxb3kMfISfbwuyu4ydTJ&limit=25&rating=g",
     "GET"
   );
-  
-  const item = document.createElement("div");
-  item.id = "gifDiv";
-  messages.appendChild(item);
 
-  if (msg == "/") {
-    const text = document.createElement("p");
-    text.innerHTML = "/trending";
-
-    item.appendChild(text);
-  } else if (msg == "/trending") {
-    textToDisplay.data.map((e) => {
-      const imgContainer = document.createElement("img");
-      imgContainer.style.height = "50px";
-      imgContainer.style.width = "50px";
-      let banan = e.images.downsized.url;
-      imgContainer.src = banan;
-
-      imgContainer.addEventListener("click", () => {
-        socket.emit("chat message", { banan: banan });
-
-        
-        const item = document.createElement("li");
-        const text = document.createElement("p");
-        const img = document.createElement("img");
-        img.src = banan;
-        messages.appendChild(item);
-        text.innerHTML = userName + ":";
-
-        item.appendChild(text);
-        item.appendChild(img);
-        window.scrollTo(0, document.body.scrollHeight);
-        
-      });
-
-      item.appendChild(imgContainer);
-
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+  if (gifDiv === null) {
+    gifDiv = document.createElement("div");
+    gifDiv.id = "gifDiv";
   }
+  inputArea.appendChild(gifDiv);
 
- 
+  if (msg === "") {
+    inputArea.removeChild(gifDiv);
+  } else if (msg.startsWith("/")) {
+    const text = document.createElement("p");
+    text.id = "trending";
+    text.innerHTML = "/trending";
+    if (gifDiv.hasChildNodes() === true) {
+      clearElementChild("gifDiv");
+    }
+    gifDiv.appendChild(text);
+
+    if (msg === "/trending") {
+      textToDisplay.data.map((e) => {
+        const imgContainer = document.createElement("img");
+        imgContainer.style.height = "50px";
+        imgContainer.style.width = "50px";
+        let url = e.images.downsized.url;
+        imgContainer.src = url;
+
+        imgContainer.addEventListener("click", () => {
+          socket.emit("chat message", { url: url });
+        });
+
+        gifDiv.appendChild(imgContainer);
+
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+    }
+  }
 }
 
 async function makeRequest(url, method, body) {
@@ -164,5 +152,15 @@ async function makeRequest(url, method, body) {
     return result;
   } catch (err) {
     console.error(err);
+  }
+}
+
+//clears element
+function clearElementChild(element) {
+  let elementToClear = document.getElementById(element);
+  let child = elementToClear.lastElementChild;
+  while (child) {
+    elementToClear.removeChild(child);
+    child = elementToClear.lastElementChild;
   }
 }

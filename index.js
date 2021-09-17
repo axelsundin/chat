@@ -8,10 +8,6 @@ app.use(express.static("public"));
 
 let clients = [];
 
-
-
-
-
 io.on("connection", (socket) => {
   console.log("a user connected");
   socket.on("user connected", (userName) => {
@@ -30,15 +26,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", (msg) => {
-    console.log(msg)
-    socket.broadcast.emit("chat message", msg);
+    console.log(msg);
+    io.emit("chat message", msg);
   });
 
   socket.on("typing", (msg) => {
     socket.broadcast.emit("typing", msg);
   });
 });
-
-
 
 http.listen(port, () => console.log("server running on port: " + port));

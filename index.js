@@ -26,12 +26,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", (msg) => {
-    
     io.emit("chat message", msg);
   });
 
   socket.on("typing", (msg) => {
-    socket.broadcast.emit("typing", msg);
+    io.emit("typing", msg);
   });
 });
 

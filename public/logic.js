@@ -12,7 +12,9 @@ let userName;
 
 //forces user to choose name when app starts, and emits it to server
 window.onload = () => {
-  userName = prompt("Enter your name?");
+  do {
+    userName = prompt("Enter your name?");
+  } while (userName == null || userName == "");
   socket.emit("user connected", userName);
 };
 

@@ -11,7 +11,9 @@ let clients = [];
 io.on("connection", (socket) => {
   console.log("a user connected");
   socket.on("user connected", (userName) => {
-    clients.push({ id: socket, userName: userName });
+    if (!clients.some((obj) => obj.id === socket.id)) {
+      clients.push({ id: socket.id, userName: userName });
+    }
     socket.broadcast.emit("user connected", userName);
   });
   socket.on("disconnect", () => {
@@ -20,7 +22,7 @@ io.on("connection", (socket) => {
       .map(function (e) {
         return e.id;
       })
-      .indexOf(socket);
+      .indexOf(socket.id);
     socket.broadcast.emit("user disconnected", clients[id].userName);
     clients.splice(id, 1);
   });

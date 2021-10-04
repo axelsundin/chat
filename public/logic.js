@@ -1,6 +1,6 @@
 //socket connection to default host
 const socket = io();
-let submitBtn = document.getElementById("submitBtn")
+let submitBtn = document.getElementById("submitBtn");
 //global variables
 const messages = document.getElementById("messages");
 const inputArea = document.getElementById("inputArea");
@@ -42,8 +42,10 @@ socket.on("chat message", (msg) => {
     window.scrollTo(0, document.body.scrollHeight);
   } else {
     typing = false;
-    typingLi = document.getElementById(msg.userName);
-    messages.removeChild(typingLi);
+    if (msg.userName !== userName) {
+      typingLi = document.getElementById(msg.userName);
+      messages.removeChild(typingLi);
+    }
     const item = document.createElement("li");
     item.textContent = msg.userName + ": " + msg.msg;
     messages.appendChild(item);
@@ -57,7 +59,6 @@ input.addEventListener("input", function (e) {
   let msg = input.value;
   if (msg.startsWith("/")) {
     collectText(msg);
-    
   } else if (msg === "") {
     if (gifDiv === null) {
     } else {
@@ -67,7 +68,7 @@ input.addEventListener("input", function (e) {
   if (!typing) {
     typing = true;
     msg = userName + " is typing...";
-    socket.emit("typing", { userName, msg });
+    socket.emit("typing", { userName, msg, typing });
   }
 });
 
@@ -118,15 +119,12 @@ async function collectText(msg) {
     const text = document.createElement("p");
     text.id = "trending";
     text.innerHTML = "/trending";
-    
+
     submitBtn.addEventListener("click", () => {
-      
-      gifDiv.remove()
-      input.value=""
-      
+      gifDiv.remove();
+      input.value = "";
     });
 
-   
     if (gifDiv.hasChildNodes() === true) {
       clearElementChild("gifDiv");
     }
@@ -142,9 +140,8 @@ async function collectText(msg) {
 
         imgContainer.addEventListener("click", () => {
           socket.emit("chat message", { url: url });
-          gifDiv.remove()
-          input.value=""
-          
+          gifDiv.remove();
+          input.value = "";
         });
 
         gifDiv.appendChild(imgContainer);

@@ -1,15 +1,15 @@
 //socket connection to default host
 const socket = io();
-
+let submitBtn = document.getElementById("submitBtn")
 //global variables
 const messages = document.getElementById("messages");
 const inputArea = document.getElementById("inputArea");
 let gifDiv = null;
 const form = document.getElementById("form");
 const input = document.getElementById("input");
-let typing = false;
-let userName;
 
+let userName;
+let typing = false;
 //forces user to choose name when app starts, and emits it to server
 window.onload = () => {
   do {
@@ -57,6 +57,7 @@ input.addEventListener("input", function (e) {
   let msg = input.value;
   if (msg.startsWith("/")) {
     collectText(msg);
+    
   } else if (msg === "") {
     if (gifDiv === null) {
     } else {
@@ -117,6 +118,15 @@ async function collectText(msg) {
     const text = document.createElement("p");
     text.id = "trending";
     text.innerHTML = "/trending";
+    
+    submitBtn.addEventListener("click", () => {
+      
+      gifDiv.remove()
+      input.value=""
+      
+    });
+
+   
     if (gifDiv.hasChildNodes() === true) {
       clearElementChild("gifDiv");
     }
@@ -132,6 +142,9 @@ async function collectText(msg) {
 
         imgContainer.addEventListener("click", () => {
           socket.emit("chat message", { url: url });
+          gifDiv.remove()
+          input.value=""
+          
         });
 
         gifDiv.appendChild(imgContainer);

@@ -7,13 +7,13 @@ const inputArea = document.getElementById("inputArea");
 let gifDiv = null;
 const form = document.getElementById("form");
 const input = document.getElementById("input");
-
+let typing = false;
 let userName;
 
 //forces user to choose name when app starts, and emits it to server
 window.onload = () => {
   do {
-    userName = prompt("Enter your name?");
+    userName = prompt("Enter your name:");
   } while (userName == null || userName == "");
   socket.emit("user connected", userName);
 };
@@ -33,11 +33,6 @@ form.addEventListener("submit", function (e) {
 //adds <li> "[username]: [chat message]" in chat
 //removes <li> "[username] is typing..." if there is one
 socket.on("chat message", (msg) => {
-  const typing = document.getElementById("typing");
-  console.log(typing);
-  if (typing !== null) {
-    messages.removeChild(typing);
-  }
   if (msg.url) {
     const item = document.createElement("li");
     const img = document.createElement("img");
@@ -46,6 +41,9 @@ socket.on("chat message", (msg) => {
     item.appendChild(img);
     window.scrollTo(0, document.body.scrollHeight);
   } else {
+    typing = false;
+    typingLi = document.getElementById(msg.userName);
+    messages.removeChild(typingLi);
     const item = document.createElement("li");
     item.textContent = msg.userName + ": " + msg.msg;
     messages.appendChild(item);
@@ -65,18 +63,20 @@ input.addEventListener("input", function (e) {
       inputArea.removeChild(gifDiv);
     }
   }
-  msg = userName + " is typing...";
-  socket.emit("typing", { msg });
+  if (!typing) {
+    typing = true;
+    msg = userName + " is typing...";
+    socket.emit("typing", { userName, msg });
+  }
 });
 
 //adds <li> "[username] is typing..." in chat
 //if element with id "typing" does not exist, create one
 //prevents multiple "[username] is typing..." since it is triggered on input
 socket.on("typing", function (msg) {
-  const typing = document.getElementById("typing");
-  if (!typing) {
+  if (msg.userName !== userName) {
     const item = document.createElement("li");
-    item.id = "typing";
+    item.id = msg.userName;
     item.textContent = msg.msg;
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);

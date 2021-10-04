@@ -37,6 +37,7 @@ socket.on("chat message", (msg) => {
     const item = document.createElement("li");
     const img = document.createElement("img");
     img.src = msg.url;
+    item.textContent = msg.userName + ": ";
     messages.appendChild(item);
     item.appendChild(img);
     window.scrollTo(0, document.body.scrollHeight);
@@ -139,7 +140,7 @@ async function collectText(msg) {
         imgContainer.src = url;
 
         imgContainer.addEventListener("click", () => {
-          socket.emit("chat message", { url: url });
+          socket.emit("chat message", { url, userName });
           gifDiv.remove();
           input.value = "";
         });

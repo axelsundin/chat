@@ -13,9 +13,12 @@ io.on("connection", (socket) => {
   console.log("a user connected");
   clients.push({ id: socket.id });
   socket.on("user connected", (userName) => {
-    if (!clients.some((obj) => obj.id === socket.id)) {
-      clients.push({ id: socket.id, userName: userName });
-    }
+    const id = clients
+      .map(function (e) {
+        return e.id;
+      })
+      .indexOf(socket.id);
+    clients[id].userName = userName;
     socket.broadcast.emit("user connected", userName);
   });
   socket.on("disconnect", () => {
@@ -25,21 +28,17 @@ io.on("connection", (socket) => {
         return e.id;
       })
       .indexOf(socket.id);
-    socket.broadcast.emit("user disconnected", clients[id].id);
+    socket.broadcast.emit("user disconnected", clients[id].userName);
     clients.splice(id, 1);
   });
 
   socket.on("chat message", (msg) => {
-    console.log(msg.url);
-    console.log(msg);
     if (!msg.url) {
       if (msg.msg === "" || msg.msg.startsWith("/")) {
       } else {
-        console.log("message sent");
         io.emit("chat message", msg);
       }
     } else {
-      console.log("gif sent");
       io.emit("chat message", msg);
     }
   });

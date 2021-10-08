@@ -41,7 +41,6 @@ socket.on("chat message", (msg) => {
     const item = document.createElement("li");
     const text = document.createElement("p");
     const img = document.createElement("img");
-    item.id = msg.userName;
     item.style.display = "flex";
     text.style.margin = "0 5px 0 0";
     text.innerHTML = msg.userName + ": ";
@@ -51,7 +50,6 @@ socket.on("chat message", (msg) => {
     item.appendChild(img);
     window.scrollTo(0, document.body.scrollHeight);
   } else {
-    typing = false;
     if (msg.userName !== userName) {
       typingLi = document.getElementById(msg.userName);
       messages.removeChild(typingLi);
@@ -61,6 +59,7 @@ socket.on("chat message", (msg) => {
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
   }
+  typing = false;
 });
 
 //if user types, emit to server

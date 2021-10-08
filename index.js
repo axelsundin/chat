@@ -11,23 +11,20 @@ let clients = [];
 
 io.on("connection", (socket) => {
   console.log("a user connected");
-  clients.push({ id: socket.id });
+  clients.push({ id: socket.id, userName: "Anonymous" });
+  const id = clients
+    .map(function (e) {
+      return e.id;
+    })
+    .indexOf(socket.id);
+
   socket.on("user connected", (userName) => {
-    const id = clients
-      .map(function (e) {
-        return e.id;
-      })
-      .indexOf(socket.id);
     clients[id].userName = userName;
     socket.broadcast.emit("user connected", userName);
   });
+
   socket.on("disconnect", () => {
     console.log("user disconnected");
-    const id = clients
-      .map(function (e) {
-        return e.id;
-      })
-      .indexOf(socket.id);
     socket.broadcast.emit("user disconnected", clients[id].userName);
     clients.splice(id, 1);
   });

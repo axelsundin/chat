@@ -34,9 +34,14 @@ form.addEventListener("submit", function (e) {
 //removes <li> "[username] is typing..." if there is one
 socket.on("chat message", (msg) => {
   if (msg.url) {
+    if (msg.userName !== userName) {
+      typingLi = document.getElementById(msg.userName);
+      messages.removeChild(typingLi);
+    }
     const item = document.createElement("li");
     const text = document.createElement("p");
     const img = document.createElement("img");
+    item.id = msg.userName;
     item.style.display = "flex";
     text.style.margin = "0 5px 0 0";
     text.innerHTML = msg.userName + ": ";

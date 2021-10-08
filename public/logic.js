@@ -35,10 +35,14 @@ form.addEventListener("submit", function (e) {
 socket.on("chat message", (msg) => {
   if (msg.url) {
     const item = document.createElement("li");
+    const text = document.createElement("p");
     const img = document.createElement("img");
+    item.style.display = "flex";
+    text.style.margin = "0 5px 0 0";
+    text.innerHTML = msg.userName + ": ";
     img.src = msg.url;
-    item.textContent = msg.userName + ": ";
     messages.appendChild(item);
+    item.appendChild(text);
     item.appendChild(img);
     window.scrollTo(0, document.body.scrollHeight);
   } else {
@@ -103,6 +107,7 @@ socket.on("user disconnected", function (msg) {
 });
 
 async function collectText(msg) {
+  console.log("collectText run");
   const textToDisplay = await makeRequest(
     "http://api.giphy.com/v1/gifs/trending?api_key=hXZ9UKHaXXv9rxb3kMfISfbwuyu4ydTJ&limit=25&rating=g",
     "GET"
@@ -123,7 +128,6 @@ async function collectText(msg) {
 
     submitBtn.addEventListener("click", () => {
       gifDiv.remove();
-      input.value = "";
     });
 
     if (gifDiv.hasChildNodes() === true) {
